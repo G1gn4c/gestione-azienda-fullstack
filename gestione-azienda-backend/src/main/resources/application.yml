@@ -1,0 +1,22 @@
+server:
+  port: 8080
+  servlet:
+    context-path: /gestione-azienda 
+
+spring:
+  datasource:
+    url: jdbc:postgresql://localhost:5432/gestione-azienda
+    username: gestione-azienda
+    password: gestione-azienda
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+        format_sql: true
+    show-sql: true
+  flyway:
+    default-schema: gestione-azienda
+  main:
+    web-application-type: servlet

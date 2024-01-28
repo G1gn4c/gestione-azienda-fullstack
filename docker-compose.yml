@@ -1,0 +1,35 @@
+services:
+  db:
+    container_name: gestione-azienda-database
+    image: postgres:16.1
+    environment: 
+      POSTGRES_USER: gestione-azienda
+      POSTGRES_PASSWORD: gestione-azienda
+      PGDATA: /data/postgres
+    volumes:
+      - db:/data/postgres
+    ports:
+      - "5432:5432"
+    networks:
+      - db
+    restart: unless-stopped
+    
+  gestione-azienda-backend:
+    container_name: gestione-azienda-backend
+    image: gianlucavitto/gestione-azienda-backend
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://db:5432/gestione-azienda
+    ports:
+      - "8088:8080"
+    networks:
+      - db
+    depends_on:
+      - db
+    restart: unless-stopped
+    
+networks:
+  db:
+    driver: bridge
+    
+volumes:
+  db:
