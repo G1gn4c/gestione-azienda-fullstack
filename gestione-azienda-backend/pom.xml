@@ -19,6 +19,7 @@
 		<testcontainers.version>1.19.3</testcontainers.version>
 		<javafaker.version>1.0.2</javafaker.version>
 		<docker.username>gianlucavitto</docker.username>
+		<docker.image.tag>0.0.1-SNAPSHOT</docker.image.tag>
 	</properties>
 	<dependencies>
 		<!-- web -->
@@ -207,7 +208,7 @@
 						</platforms>
 					</from>
 					<to>
-						<image>docker.io/${docker.username}/${project.artifactId}:${project.version}</image>
+						<image>docker.io/${docker.username}/${project.artifactId}:${docker.image.tag}</image>
 						<tags>
 							<tag>latest</tag>
 						</tags>
