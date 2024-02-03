@@ -7,7 +7,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 public class GestioneAziendaBackendApplication {
 
 	public static void main(String[] args) {
-		SpringApplication.run(GestioneAziendaBackendApplication.class, args); 
+		SpringApplication.run(GestioneAziendaBackendApplication.class, args);
 	}
 
 }
