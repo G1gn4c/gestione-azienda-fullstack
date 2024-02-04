@@ -3,6 +3,7 @@ package com.gignac.service.impl;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -29,15 +30,19 @@ public class UtenteServiceImpl implements UtenteService {
 	
 	private DaUtenteAdUtenteReadDTOMapper daUtenteAdUtenteReaderDTOMapper;
 	
+	private PasswordEncoder passwordEncoder;
+	
 	public UtenteServiceImpl(
 			UtenteRepository utenteRepository,
 			UtenteJdbcRepository utenteJdbcRepository,
-			DaUtenteAdUtenteReadDTOMapper daUtenteAdUtenteReaderDTOMapper
+			DaUtenteAdUtenteReadDTOMapper daUtenteAdUtenteReaderDTOMapper,
+			PasswordEncoder passwordEncoder
 	) {
 		super();
 		this.utenteRepository = utenteRepository;
 		this.utenteJdbcRepository = utenteJdbcRepository;
 		this.daUtenteAdUtenteReaderDTOMapper = daUtenteAdUtenteReaderDTOMapper;
+		this.passwordEncoder = passwordEncoder;
 	}
 
 	@Override
@@ -51,7 +56,7 @@ public class UtenteServiceImpl implements UtenteService {
 				utenteCreateDTO.getNome(), 
 				utenteCreateDTO.getCognome(), 
 				utenteCreateDTO.getUsername(), 
-				utenteCreateDTO.getPassword(), 
+				passwordEncoder.encode(utenteCreateDTO.getPassword()), 
 				new Ruolo(utenteCreateDTO.getIdRuolo(), null, null, null)
 		);
 		utenteRepository.save(utente);
@@ -88,7 +93,7 @@ public class UtenteServiceImpl implements UtenteService {
 				utenteUpdateDTO.getNome(), 
 				utenteUpdateDTO.getCognome(), 
 				utenteUpdateDTO.getUsername(), 
-				utenteUpdateDTO.getPassword(), 
+				passwordEncoder.encode(utenteUpdateDTO.getPassword()), 
 				new Ruolo(utenteUpdateDTO.getIdRuolo(), null, null, null)
 		);
 		utenteRepository.save(utente);

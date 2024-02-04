@@ -17,6 +17,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.security.crypto.password.PasswordEncoder;
 
 import com.gignac.dto.PaginaDTO;
 import com.gignac.dto.UtenteCreateDTO;
@@ -45,11 +46,14 @@ class UtenteServiceTest {
 	
 	@Mock
 	private UtenteJdbcRepository utenteJdbcRepository;
+	
+	@Mock
+	private PasswordEncoder passwordEncoder;
 
 	@BeforeEach
 	void setUp() throws Exception {
 		DaUtenteAdUtenteReadDTOMapper daUtenteAdUtenteReaderDTOMapper = new DaUtenteAdUtenteReadDTOMapper();
-		utenteService = new UtenteServiceImpl(utenteRepository, utenteJdbcRepository, daUtenteAdUtenteReaderDTOMapper);
+		utenteService = new UtenteServiceImpl(utenteRepository, utenteJdbcRepository, daUtenteAdUtenteReaderDTOMapper, passwordEncoder);
 	}
 
 	@Test
@@ -59,6 +63,7 @@ class UtenteServiceTest {
 		String username = FAKER.name().username();
 		String password = "password";
 		long idRuolo = 1L;
+		String passwordCriptata = "qwertyuiop";
 		UtenteCreateDTO utenteCreateDTO = new UtenteCreateDTO();
 		utenteCreateDTO.setNome(nome);
 		utenteCreateDTO.setCognome(cognome);
@@ -67,6 +72,7 @@ class UtenteServiceTest {
 		utenteCreateDTO.setIdRuolo(idRuolo);
 		
 		when(utenteRepository.existsByUsername(username)).thenReturn(false);
+		when(passwordEncoder.encode(password)).thenReturn(passwordCriptata);
 		
 		utenteService.create(utenteCreateDTO);
 		
@@ -78,7 +84,7 @@ class UtenteServiceTest {
 		assertThat(utenteCatturato.getNome()).isEqualTo(utenteCreateDTO.getNome());
 		assertThat(utenteCatturato.getCognome()).isEqualTo(utenteCreateDTO.getCognome());
 		assertThat(utenteCatturato.getUsername()).isEqualTo(utenteCreateDTO.getUsername());
-		assertThat(utenteCatturato.getPassword()).isEqualTo(utenteCreateDTO.getPassword());
+		assertThat(utenteCatturato.getPassword()).isEqualTo(passwordCriptata);
 		assertThat(utenteCatturato.getRuolo().getId()).isEqualTo(utenteCreateDTO.getIdRuolo());
 		assertThat(utenteCatturato.getRuolo().getCodice()).isNull();
 		assertThat(utenteCatturato.getRuolo().getDescrizione()).isNull();
@@ -187,6 +193,7 @@ class UtenteServiceTest {
 		String username = FAKER.name().username();
 		String password = "password";
 		long idRuolo = 1L;
+		String passwordCriptata = "qwertyuiop";
 		UtenteUpdateDTO utenteUpdateDTO = new UtenteUpdateDTO();
 		utenteUpdateDTO.setId(id);
 		utenteUpdateDTO.setNome(nome);
@@ -197,6 +204,7 @@ class UtenteServiceTest {
 		
 		when(utenteRepository.existsById(id)).thenReturn(true);
 		when(utenteRepository.existsByUsername(username)).thenReturn(false);
+		when(passwordEncoder.encode(password)).thenReturn(passwordCriptata);
 		
 		utenteService.update(utenteUpdateDTO);
 		
@@ -208,7 +216,7 @@ class UtenteServiceTest {
 		assertThat(utenteCatturato.getNome()).isEqualTo(utenteUpdateDTO.getNome());
 		assertThat(utenteCatturato.getCognome()).isEqualTo(utenteUpdateDTO.getCognome());
 		assertThat(utenteCatturato.getUsername()).isEqualTo(utenteUpdateDTO.getUsername());
-		assertThat(utenteCatturato.getPassword()).isEqualTo(utenteUpdateDTO.getPassword());
+		assertThat(utenteCatturato.getPassword()).isEqualTo(passwordCriptata);
 		assertThat(utenteCatturato.getRuolo().getId()).isEqualTo(utenteUpdateDTO.getIdRuolo());
 		assertThat(utenteCatturato.getRuolo().getCodice()).isNull();
 		assertThat(utenteCatturato.getRuolo().getDescrizione()).isNull();

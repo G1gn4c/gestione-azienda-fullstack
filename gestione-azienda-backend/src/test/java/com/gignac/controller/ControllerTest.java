@@ -11,10 +11,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
 import org.springframework.core.ParameterizedTypeReference;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.reactive.server.WebTestClient;
 
 import com.gignac.AbstractTest;
+import com.gignac.dto.AuthenticationRequestDTO;
+import com.gignac.dto.AuthenticationResponseDTO;
 import com.gignac.dto.AziendaCreateDTO;
 import com.gignac.dto.AziendaFiltroDTO;
 import com.gignac.dto.AziendaReadDTO;
@@ -40,6 +43,7 @@ class ControllerTest extends AbstractTest {
 	private static final String RUOLO_URI = "/api/v1/ruolo";
 	private static final String AZIENDA_URI = "/api/v1/azienda";
 	private static final String IMPIEGATO_URI = "/api/v1/impiegato";
+	private static final String AUTH_URI = "/api/v1/auth";
 	
 	private WebTestClient webTestClient;
 	
@@ -67,10 +71,29 @@ class ControllerTest extends AbstractTest {
 		utenteCreateDTO.setPassword(password);
 		utenteCreateDTO.setIdRuolo(idRuolo);
 		
+		AuthenticationRequestDTO authenticationRequestDTO = new AuthenticationRequestDTO();
+		authenticationRequestDTO.setUsername("Gignac");
+		authenticationRequestDTO.setPassword("password");
+		
+		String jwtToken = webTestClient.post()
+                                       .uri(AUTH_URI + "/login")
+                                       .accept(MediaType.APPLICATION_JSON)
+                                       .contentType(MediaType.APPLICATION_JSON)
+                                       .body(Mono.just(authenticationRequestDTO), AuthenticationRequestDTO.class)
+                                       .exchange()
+                                       .expectStatus()
+                                       .isOk()
+                                       .expectBody(new ParameterizedTypeReference<AuthenticationResponseDTO>() {})
+                                       .returnResult()
+                                       .getResponseHeaders()
+                                       .get(HttpHeaders.AUTHORIZATION)
+                                       .get(0);
+		
 		webTestClient.post()
 		             .uri(UTENTE_URI)
 		             .accept(MediaType.APPLICATION_JSON)
 		             .contentType(MediaType.APPLICATION_JSON)
+		             .header(HttpHeaders.AUTHORIZATION, "Bearer %s".formatted(jwtToken))
 		             .body(Mono.just(utenteCreateDTO), UtenteCreateDTO.class)
 		             .exchange()
 		             .expectStatus()
@@ -79,6 +102,7 @@ class ControllerTest extends AbstractTest {
 		List<UtenteReadDTO> utenti = webTestClient.get()
 	                                              .uri(UTENTE_URI)
 	                                              .accept(MediaType.APPLICATION_JSON)
+	                                              .header(HttpHeaders.AUTHORIZATION, "Bearer %s".formatted(jwtToken))
 	                                              .exchange()
 		                                          .expectStatus()
 		                                          .isOk()
@@ -105,6 +129,7 @@ class ControllerTest extends AbstractTest {
 		UtenteReadDTO utenteAttuale = webTestClient.get()
                                                    .uri(UTENTE_URI + "/{id}", id)
                                                    .accept(MediaType.APPLICATION_JSON)
+                                                   .header(HttpHeaders.AUTHORIZATION, "Bearer %s".formatted(jwtToken))
                                                    .exchange()
                                                    .expectStatus()
                                                    .isOk()
@@ -135,10 +160,29 @@ class ControllerTest extends AbstractTest {
 		utenteCreateDTO.setPassword(password);
 		utenteCreateDTO.setIdRuolo(idRuolo);
 		
+		AuthenticationRequestDTO authenticationRequestDTO = new AuthenticationRequestDTO();
+		authenticationRequestDTO.setUsername("Gignac");
+		authenticationRequestDTO.setPassword("password");
+		
+		String jwtToken = webTestClient.post()
+                                       .uri(AUTH_URI + "/login")
+                                       .accept(MediaType.APPLICATION_JSON)
+                                       .contentType(MediaType.APPLICATION_JSON)
+                                       .body(Mono.just(authenticationRequestDTO), AuthenticationRequestDTO.class)
+                                       .exchange()
+                                       .expectStatus()
+                                       .isOk()
+                                       .expectBody(new ParameterizedTypeReference<AuthenticationResponseDTO>() {})
+                                       .returnResult()
+                                       .getResponseHeaders()
+                                       .get(HttpHeaders.AUTHORIZATION)
+                                       .get(0);
+		
 		webTestClient.post()
 		             .uri(UTENTE_URI)
 		             .accept(MediaType.APPLICATION_JSON)
 		             .contentType(MediaType.APPLICATION_JSON)
+		             .header(HttpHeaders.AUTHORIZATION, "Bearer %s".formatted(jwtToken))
 		             .body(Mono.just(utenteCreateDTO), UtenteCreateDTO.class)
 		             .exchange()
 		             .expectStatus()
@@ -147,6 +191,7 @@ class ControllerTest extends AbstractTest {
 		List<UtenteReadDTO> utenti = webTestClient.get()
 	                                              .uri(UTENTE_URI)
 	                                              .accept(MediaType.APPLICATION_JSON)
+	                                              .header(HttpHeaders.AUTHORIZATION, "Bearer %s".formatted(jwtToken))
 	                                              .exchange()
 		                                          .expectStatus()
 		                                          .isOk()
@@ -186,6 +231,7 @@ class ControllerTest extends AbstractTest {
                      .uri(UTENTE_URI)
                      .accept(MediaType.APPLICATION_JSON)
                      .contentType(MediaType.APPLICATION_JSON)
+                     .header(HttpHeaders.AUTHORIZATION, "Bearer %s".formatted(jwtToken))
                      .body(Mono.just(utenteUpdateDTO), UtenteUpdateDTO.class)
                      .exchange()
                      .expectStatus()
@@ -193,7 +239,9 @@ class ControllerTest extends AbstractTest {
 		
 		utenteReadDTO = webTestClient.get()
 				                     .uri(UTENTE_URI + "/{id}", id)
-				                     .accept(MediaType.APPLICATION_JSON).exchange()
+				                     .accept(MediaType.APPLICATION_JSON)
+				                     .header(HttpHeaders.AUTHORIZATION, "Bearer %s".formatted(jwtToken))
+				                     .exchange()
 				                     .expectStatus()
 				                     .isOk()
 				                     .expectBody(new ParameterizedTypeReference<UtenteReadDTO>() {})
@@ -223,10 +271,29 @@ class ControllerTest extends AbstractTest {
 		utenteCreateDTO.setPassword(password);
 		utenteCreateDTO.setIdRuolo(idRuolo);
 		
+		AuthenticationRequestDTO authenticationRequestDTO = new AuthenticationRequestDTO();
+		authenticationRequestDTO.setUsername("Gignac");
+		authenticationRequestDTO.setPassword("password");
+		
+		String jwtToken = webTestClient.post()
+                                       .uri(AUTH_URI + "/login")
+                                       .accept(MediaType.APPLICATION_JSON)
+                                       .contentType(MediaType.APPLICATION_JSON)
+                                       .body(Mono.just(authenticationRequestDTO), AuthenticationRequestDTO.class)
+                                       .exchange()
+                                       .expectStatus()
+                                       .isOk()
+                                       .expectBody(new ParameterizedTypeReference<AuthenticationResponseDTO>() {})
+                                       .returnResult()
+                                       .getResponseHeaders()
+                                       .get(HttpHeaders.AUTHORIZATION)
+                                       .get(0);
+		
 		webTestClient.post()
 		             .uri(UTENTE_URI)
 		             .accept(MediaType.APPLICATION_JSON)
 		             .contentType(MediaType.APPLICATION_JSON)
+		             .header(HttpHeaders.AUTHORIZATION, "Bearer %s".formatted(jwtToken))
 		             .body(Mono.just(utenteCreateDTO), UtenteCreateDTO.class)
 		             .exchange()
 		             .expectStatus()
@@ -235,6 +302,7 @@ class ControllerTest extends AbstractTest {
 		List<UtenteReadDTO> utenti = webTestClient.get()
 	                                              .uri(UTENTE_URI)
 	                                              .accept(MediaType.APPLICATION_JSON)
+	                                              .header(HttpHeaders.AUTHORIZATION, "Bearer %s".formatted(jwtToken))
 	                                              .exchange()
 		                                          .expectStatus()
 		                                          .isOk()
@@ -261,6 +329,7 @@ class ControllerTest extends AbstractTest {
 		webTestClient.delete()
                      .uri(UTENTE_URI + "/{id}", id)
                      .accept(MediaType.APPLICATION_JSON)
+                     .header(HttpHeaders.AUTHORIZATION, "Bearer %s".formatted(jwtToken))
                      .exchange()
                      .expectStatus()
                      .isOk();
@@ -268,6 +337,7 @@ class ControllerTest extends AbstractTest {
 		webTestClient.get()
                      .uri(UTENTE_URI + "/{id}", id)
                      .accept(MediaType.APPLICATION_JSON)
+                     .header(HttpHeaders.AUTHORIZATION, "Bearer %s".formatted(jwtToken))
                      .exchange()
                      .expectStatus()
                      .isNotFound();
@@ -287,10 +357,29 @@ class ControllerTest extends AbstractTest {
 		utenteCreateDTO.setPassword(password);
 		utenteCreateDTO.setIdRuolo(idRuolo);
 		
+		AuthenticationRequestDTO authenticationRequestDTO = new AuthenticationRequestDTO();
+		authenticationRequestDTO.setUsername("Gignac");
+		authenticationRequestDTO.setPassword("password");
+		
+		String jwtToken = webTestClient.post()
+                                       .uri(AUTH_URI + "/login")
+                                       .accept(MediaType.APPLICATION_JSON)
+                                       .contentType(MediaType.APPLICATION_JSON)
+                                       .body(Mono.just(authenticationRequestDTO), AuthenticationRequestDTO.class)
+                                       .exchange()
+                                       .expectStatus()
+                                       .isOk()
+                                       .expectBody(new ParameterizedTypeReference<AuthenticationResponseDTO>() {})
+                                       .returnResult()
+                                       .getResponseHeaders()
+                                       .get(HttpHeaders.AUTHORIZATION)
+                                       .get(0);
+		
 		webTestClient.post()
 		             .uri(UTENTE_URI)
 		             .accept(MediaType.APPLICATION_JSON)
 		             .contentType(MediaType.APPLICATION_JSON)
+		             .header(HttpHeaders.AUTHORIZATION, "Bearer %s".formatted(jwtToken))
 		             .body(Mono.just(utenteCreateDTO), UtenteCreateDTO.class)
 		             .exchange()
 		             .expectStatus()
@@ -309,6 +398,7 @@ class ControllerTest extends AbstractTest {
 	                                                   .uri(UTENTE_URI + "/cerca")
 	                                                   .accept(MediaType.APPLICATION_JSON)
 	                                                   .contentType(MediaType.APPLICATION_JSON)
+	                                                   .header(HttpHeaders.AUTHORIZATION, "Bearer %s".formatted(jwtToken))
 	                         		                   .body(Mono.just(utenteFiltroDTO), UtenteFiltroDTO.class)
 	                                                   .exchange()
 		                                               .expectStatus()
@@ -332,9 +422,29 @@ class ControllerTest extends AbstractTest {
 	@Test
 	void testReadLong() {
 		long id = 1L;
+		
+		AuthenticationRequestDTO authenticationRequestDTO = new AuthenticationRequestDTO();
+		authenticationRequestDTO.setUsername("Gignac");
+		authenticationRequestDTO.setPassword("password");
+		
+		String jwtToken = webTestClient.post()
+                                       .uri(AUTH_URI + "/login")
+                                       .accept(MediaType.APPLICATION_JSON)
+                                       .contentType(MediaType.APPLICATION_JSON)
+                                       .body(Mono.just(authenticationRequestDTO), AuthenticationRequestDTO.class)
+                                       .exchange()
+                                       .expectStatus()
+                                       .isOk()
+                                       .expectBody(new ParameterizedTypeReference<AuthenticationResponseDTO>() {})
+                                       .returnResult()
+                                       .getResponseHeaders()
+                                       .get(HttpHeaders.AUTHORIZATION)
+                                       .get(0);
+		
 		RuoloReadDTO ruoloAttuale = webTestClient.get()
                                                  .uri(RUOLO_URI + "/{id}", id)
                                                  .accept(MediaType.APPLICATION_JSON)
+                                                 .header(HttpHeaders.AUTHORIZATION, "Bearer %s".formatted(jwtToken))
                                                  .exchange()
                                                  .expectStatus()
                                                  .isOk()
@@ -349,9 +459,28 @@ class ControllerTest extends AbstractTest {
 
 	@Test
 	void testRead() {
+		AuthenticationRequestDTO authenticationRequestDTO = new AuthenticationRequestDTO();
+		authenticationRequestDTO.setUsername("Gignac");
+		authenticationRequestDTO.setPassword("password");
+		
+		String jwtToken = webTestClient.post()
+                                       .uri(AUTH_URI + "/login")
+                                       .accept(MediaType.APPLICATION_JSON)
+                                       .contentType(MediaType.APPLICATION_JSON)
+                                       .body(Mono.just(authenticationRequestDTO), AuthenticationRequestDTO.class)
+                                       .exchange()
+                                       .expectStatus()
+                                       .isOk()
+                                       .expectBody(new ParameterizedTypeReference<AuthenticationResponseDTO>() {})
+                                       .returnResult()
+                                       .getResponseHeaders()
+                                       .get(HttpHeaders.AUTHORIZATION)
+                                       .get(0);
+		
 		List<RuoloReadDTO> ruoli = webTestClient.get()
                                                 .uri(RUOLO_URI)
                                                 .accept(MediaType.APPLICATION_JSON)
+                                                .header(HttpHeaders.AUTHORIZATION, "Bearer %s".formatted(jwtToken))
                                                 .exchange()
                                                 .expectStatus()
                                                 .isOk()
@@ -391,10 +520,29 @@ class ControllerTest extends AbstractTest {
 		aziendaCreateDTO.setIndirizzo(indirizzo);
 		aziendaCreateDTO.setEmail(email);
 		
+		AuthenticationRequestDTO authenticationRequestDTO = new AuthenticationRequestDTO();
+		authenticationRequestDTO.setUsername("Gignac");
+		authenticationRequestDTO.setPassword("password");
+		
+		String jwtToken = webTestClient.post()
+                                       .uri(AUTH_URI + "/login")
+                                       .accept(MediaType.APPLICATION_JSON)
+                                       .contentType(MediaType.APPLICATION_JSON)
+                                       .body(Mono.just(authenticationRequestDTO), AuthenticationRequestDTO.class)
+                                       .exchange()
+                                       .expectStatus()
+                                       .isOk()
+                                       .expectBody(new ParameterizedTypeReference<AuthenticationResponseDTO>() {})
+                                       .returnResult()
+                                       .getResponseHeaders()
+                                       .get(HttpHeaders.AUTHORIZATION)
+                                       .get(0);
+		
 		webTestClient.post()
 		             .uri(AZIENDA_URI)
 		             .accept(MediaType.APPLICATION_JSON)
 		             .contentType(MediaType.APPLICATION_JSON)
+		             .header(HttpHeaders.AUTHORIZATION, "Bearer %s".formatted(jwtToken))
 		             .body(Mono.just(aziendaCreateDTO), AziendaCreateDTO.class)
 		             .exchange()
 		             .expectStatus()
@@ -403,6 +551,7 @@ class ControllerTest extends AbstractTest {
 		List<AziendaReadDTO> aziende = webTestClient.get()
 	                                              .uri(AZIENDA_URI)
 	                                              .accept(MediaType.APPLICATION_JSON)
+	                                              .header(HttpHeaders.AUTHORIZATION, "Bearer %s".formatted(jwtToken))
 	                                              .exchange()
 		                                          .expectStatus()
 		                                          .isOk()
@@ -426,6 +575,7 @@ class ControllerTest extends AbstractTest {
 		AziendaReadDTO aziendaAttuale = webTestClient.get()
                                                      .uri(AZIENDA_URI + "/{id}", id)
                                                      .accept(MediaType.APPLICATION_JSON)
+                                                     .header(HttpHeaders.AUTHORIZATION, "Bearer %s".formatted(jwtToken))
                                                      .exchange()
                                                      .expectStatus()
                                                      .isOk()
@@ -449,10 +599,29 @@ class ControllerTest extends AbstractTest {
 		aziendaCreateDTO.setIndirizzo(indirizzo);
 		aziendaCreateDTO.setEmail(email);
 		
+		AuthenticationRequestDTO authenticationRequestDTO = new AuthenticationRequestDTO();
+		authenticationRequestDTO.setUsername("Gignac");
+		authenticationRequestDTO.setPassword("password");
+		
+		String jwtToken = webTestClient.post()
+                                       .uri(AUTH_URI + "/login")
+                                       .accept(MediaType.APPLICATION_JSON)
+                                       .contentType(MediaType.APPLICATION_JSON)
+                                       .body(Mono.just(authenticationRequestDTO), AuthenticationRequestDTO.class)
+                                       .exchange()
+                                       .expectStatus()
+                                       .isOk()
+                                       .expectBody(new ParameterizedTypeReference<AuthenticationResponseDTO>() {})
+                                       .returnResult()
+                                       .getResponseHeaders()
+                                       .get(HttpHeaders.AUTHORIZATION)
+                                       .get(0);
+		
 		webTestClient.post()
 		             .uri(AZIENDA_URI)
 		             .accept(MediaType.APPLICATION_JSON)
 		             .contentType(MediaType.APPLICATION_JSON)
+		             .header(HttpHeaders.AUTHORIZATION, "Bearer %s".formatted(jwtToken))
 		             .body(Mono.just(aziendaCreateDTO), AziendaCreateDTO.class)
 		             .exchange()
 		             .expectStatus()
@@ -461,6 +630,7 @@ class ControllerTest extends AbstractTest {
 		List<AziendaReadDTO> aziende = webTestClient.get()
 	                                                .uri(AZIENDA_URI)
 	                                                .accept(MediaType.APPLICATION_JSON)
+	                                                .header(HttpHeaders.AUTHORIZATION, "Bearer %s".formatted(jwtToken))
 	                                                .exchange()
 		                                            .expectStatus()
 		                                            .isOk()
@@ -493,6 +663,7 @@ class ControllerTest extends AbstractTest {
                      .uri(AZIENDA_URI)
                      .accept(MediaType.APPLICATION_JSON)
                      .contentType(MediaType.APPLICATION_JSON)
+                     .header(HttpHeaders.AUTHORIZATION, "Bearer %s".formatted(jwtToken))
                      .body(Mono.just(aziendaUpdateDTO), AziendaUpdateDTO.class)
                      .exchange()
                      .expectStatus()
@@ -500,7 +671,9 @@ class ControllerTest extends AbstractTest {
 		
 		aziendaReadDTO = webTestClient.get()
 				                      .uri(AZIENDA_URI + "/{id}", id)
-				                      .accept(MediaType.APPLICATION_JSON).exchange()
+				                      .accept(MediaType.APPLICATION_JSON)
+				                      .header(HttpHeaders.AUTHORIZATION, "Bearer %s".formatted(jwtToken))
+				                      .exchange()
 				                      .expectStatus()
 				                      .isOk()
 				                      .expectBody(new ParameterizedTypeReference<AziendaReadDTO>() {})
@@ -523,10 +696,29 @@ class ControllerTest extends AbstractTest {
 		aziendaCreateDTO.setIndirizzo(indirizzo);
 		aziendaCreateDTO.setEmail(email);
 		
+		AuthenticationRequestDTO authenticationRequestDTO = new AuthenticationRequestDTO();
+		authenticationRequestDTO.setUsername("Gignac");
+		authenticationRequestDTO.setPassword("password");
+		
+		String jwtToken = webTestClient.post()
+                                       .uri(AUTH_URI + "/login")
+                                       .accept(MediaType.APPLICATION_JSON)
+                                       .contentType(MediaType.APPLICATION_JSON)
+                                       .body(Mono.just(authenticationRequestDTO), AuthenticationRequestDTO.class)
+                                       .exchange()
+                                       .expectStatus()
+                                       .isOk()
+                                       .expectBody(new ParameterizedTypeReference<AuthenticationResponseDTO>() {})
+                                       .returnResult()
+                                       .getResponseHeaders()
+                                       .get(HttpHeaders.AUTHORIZATION)
+                                       .get(0);
+		
 		webTestClient.post()
 		             .uri(AZIENDA_URI)
 		             .accept(MediaType.APPLICATION_JSON)
 		             .contentType(MediaType.APPLICATION_JSON)
+		             .header(HttpHeaders.AUTHORIZATION, "Bearer %s".formatted(jwtToken))
 		             .body(Mono.just(aziendaCreateDTO), AziendaCreateDTO.class)
 		             .exchange()
 		             .expectStatus()
@@ -535,6 +727,7 @@ class ControllerTest extends AbstractTest {
 		List<AziendaReadDTO> aziende = webTestClient.get()
 	                                                .uri(AZIENDA_URI)
 	                                                .accept(MediaType.APPLICATION_JSON)
+	                                                .header(HttpHeaders.AUTHORIZATION, "Bearer %s".formatted(jwtToken))
 	                                                .exchange()
 		                                            .expectStatus()
 		                                            .isOk()
@@ -558,6 +751,7 @@ class ControllerTest extends AbstractTest {
 		webTestClient.delete()
                      .uri(AZIENDA_URI + "/{id}", id)
                      .accept(MediaType.APPLICATION_JSON)
+                     .header(HttpHeaders.AUTHORIZATION, "Bearer %s".formatted(jwtToken))
                      .exchange()
                      .expectStatus()
                      .isOk();
@@ -565,6 +759,7 @@ class ControllerTest extends AbstractTest {
 		webTestClient.get()
                      .uri(AZIENDA_URI + "/{id}", id)
                      .accept(MediaType.APPLICATION_JSON)
+                     .header(HttpHeaders.AUTHORIZATION, "Bearer %s".formatted(jwtToken))
                      .exchange()
                      .expectStatus()
                      .isNotFound();
@@ -580,10 +775,29 @@ class ControllerTest extends AbstractTest {
 		aziendaCreateDTO.setIndirizzo(indirizzo);
 		aziendaCreateDTO.setEmail(email);
 		
+		AuthenticationRequestDTO authenticationRequestDTO = new AuthenticationRequestDTO();
+		authenticationRequestDTO.setUsername("Gignac");
+		authenticationRequestDTO.setPassword("password");
+		
+		String jwtToken = webTestClient.post()
+                                       .uri(AUTH_URI + "/login")
+                                       .accept(MediaType.APPLICATION_JSON)
+                                       .contentType(MediaType.APPLICATION_JSON)
+                                       .body(Mono.just(authenticationRequestDTO), AuthenticationRequestDTO.class)
+                                       .exchange()
+                                       .expectStatus()
+                                       .isOk()
+                                       .expectBody(new ParameterizedTypeReference<AuthenticationResponseDTO>() {})
+                                       .returnResult()
+                                       .getResponseHeaders()
+                                       .get(HttpHeaders.AUTHORIZATION)
+                                       .get(0);
+		
 		webTestClient.post()
 		             .uri(AZIENDA_URI)
 		             .accept(MediaType.APPLICATION_JSON)
 		             .contentType(MediaType.APPLICATION_JSON)
+		             .header(HttpHeaders.AUTHORIZATION, "Bearer %s".formatted(jwtToken))
 		             .body(Mono.just(aziendaCreateDTO), AziendaCreateDTO.class)
 		             .exchange()
 		             .expectStatus()
@@ -602,6 +816,7 @@ class ControllerTest extends AbstractTest {
 	                                                     .uri(AZIENDA_URI + "/cerca")
 	                                                     .accept(MediaType.APPLICATION_JSON)
 	                                                     .contentType(MediaType.APPLICATION_JSON)
+	                                                     .header(HttpHeaders.AUTHORIZATION, "Bearer %s".formatted(jwtToken))
 	                         		                     .body(Mono.just(aziendaFiltroDTO), AziendaFiltroDTO.class)
 	                                                     .exchange()
 		                                                 .expectStatus()
@@ -632,10 +847,29 @@ class ControllerTest extends AbstractTest {
 		aziendaCreateDTO.setIndirizzo(indirizzoAzienda);
 		aziendaCreateDTO.setEmail(emailAzienda);
 		
+		AuthenticationRequestDTO authenticationRequestDTO = new AuthenticationRequestDTO();
+		authenticationRequestDTO.setUsername("Gignac");
+		authenticationRequestDTO.setPassword("password");
+		
+		String jwtToken = webTestClient.post()
+                                       .uri(AUTH_URI + "/login")
+                                       .accept(MediaType.APPLICATION_JSON)
+                                       .contentType(MediaType.APPLICATION_JSON)
+                                       .body(Mono.just(authenticationRequestDTO), AuthenticationRequestDTO.class)
+                                       .exchange()
+                                       .expectStatus()
+                                       .isOk()
+                                       .expectBody(new ParameterizedTypeReference<AuthenticationResponseDTO>() {})
+                                       .returnResult()
+                                       .getResponseHeaders()
+                                       .get(HttpHeaders.AUTHORIZATION)
+                                       .get(0);
+		
 		webTestClient.post()
 		             .uri(AZIENDA_URI)
 		             .accept(MediaType.APPLICATION_JSON)
 		             .contentType(MediaType.APPLICATION_JSON)
+		             .header(HttpHeaders.AUTHORIZATION, "Bearer %s".formatted(jwtToken))
 		             .body(Mono.just(aziendaCreateDTO), AziendaCreateDTO.class)
 		             .exchange()
 		             .expectStatus()
@@ -644,6 +878,7 @@ class ControllerTest extends AbstractTest {
 		List<AziendaReadDTO> aziende = webTestClient.get()
 	                                              .uri(AZIENDA_URI)
 	                                              .accept(MediaType.APPLICATION_JSON)
+	                                              .header(HttpHeaders.AUTHORIZATION, "Bearer %s".formatted(jwtToken))
 	                                              .exchange()
 		                                          .expectStatus()
 		                                          .isOk()
@@ -681,6 +916,7 @@ class ControllerTest extends AbstractTest {
 		             .uri(IMPIEGATO_URI)
 		             .accept(MediaType.APPLICATION_JSON)
 		             .contentType(MediaType.APPLICATION_JSON)
+		             .header(HttpHeaders.AUTHORIZATION, "Bearer %s".formatted(jwtToken))
 		             .body(Mono.just(impiegatoCreateDTO), ImpiegatoCreateDTO.class)
 		             .exchange()
 		             .expectStatus()
@@ -689,6 +925,7 @@ class ControllerTest extends AbstractTest {
 		List<ImpiegatoReadDTO> impiegati = webTestClient.get()
 	                                                    .uri(IMPIEGATO_URI)
 	                                                    .accept(MediaType.APPLICATION_JSON)
+	                                                    .header(HttpHeaders.AUTHORIZATION, "Bearer %s".formatted(jwtToken))
 	                                                    .exchange()
 		                                                .expectStatus()
 		                                                .isOk()
@@ -718,6 +955,7 @@ class ControllerTest extends AbstractTest {
 		ImpiegatoReadDTO impiegatoAttuale = webTestClient.get()
                                                          .uri(IMPIEGATO_URI + "/{id}", idImpiegato)
                                                          .accept(MediaType.APPLICATION_JSON)
+                                                         .header(HttpHeaders.AUTHORIZATION, "Bearer %s".formatted(jwtToken))
                                                          .exchange()
                                                          .expectStatus()
                                                          .isOk()
@@ -747,10 +985,29 @@ class ControllerTest extends AbstractTest {
 		aziendaCreateDTO.setIndirizzo(indirizzoAzienda);
 		aziendaCreateDTO.setEmail(emailAzienda);
 		
+		AuthenticationRequestDTO authenticationRequestDTO = new AuthenticationRequestDTO();
+		authenticationRequestDTO.setUsername("Gignac");
+		authenticationRequestDTO.setPassword("password");
+		
+		String jwtToken = webTestClient.post()
+                                       .uri(AUTH_URI + "/login")
+                                       .accept(MediaType.APPLICATION_JSON)
+                                       .contentType(MediaType.APPLICATION_JSON)
+                                       .body(Mono.just(authenticationRequestDTO), AuthenticationRequestDTO.class)
+                                       .exchange()
+                                       .expectStatus()
+                                       .isOk()
+                                       .expectBody(new ParameterizedTypeReference<AuthenticationResponseDTO>() {})
+                                       .returnResult()
+                                       .getResponseHeaders()
+                                       .get(HttpHeaders.AUTHORIZATION)
+                                       .get(0);
+		
 		webTestClient.post()
 		             .uri(AZIENDA_URI)
 		             .accept(MediaType.APPLICATION_JSON)
 		             .contentType(MediaType.APPLICATION_JSON)
+		             .header(HttpHeaders.AUTHORIZATION, "Bearer %s".formatted(jwtToken))
 		             .body(Mono.just(aziendaCreateDTO), AziendaCreateDTO.class)
 		             .exchange()
 		             .expectStatus()
@@ -759,6 +1016,7 @@ class ControllerTest extends AbstractTest {
 		List<AziendaReadDTO> aziende = webTestClient.get()
 	                                              .uri(AZIENDA_URI)
 	                                              .accept(MediaType.APPLICATION_JSON)
+	                                              .header(HttpHeaders.AUTHORIZATION, "Bearer %s".formatted(jwtToken))
 	                                              .exchange()
 		                                          .expectStatus()
 		                                          .isOk()
@@ -796,6 +1054,7 @@ class ControllerTest extends AbstractTest {
 		             .uri(IMPIEGATO_URI)
 		             .accept(MediaType.APPLICATION_JSON)
 		             .contentType(MediaType.APPLICATION_JSON)
+		             .header(HttpHeaders.AUTHORIZATION, "Bearer %s".formatted(jwtToken))
 		             .body(Mono.just(impiegatoCreateDTO), ImpiegatoCreateDTO.class)
 		             .exchange()
 		             .expectStatus()
@@ -804,6 +1063,7 @@ class ControllerTest extends AbstractTest {
 		List<ImpiegatoReadDTO> impiegati = webTestClient.get()
 	                                                    .uri(IMPIEGATO_URI)
 	                                                    .accept(MediaType.APPLICATION_JSON)
+	                                                    .header(HttpHeaders.AUTHORIZATION, "Bearer %s".formatted(jwtToken))
 	                                                    .exchange()
 		                                                .expectStatus()
 		                                                .isOk()
@@ -846,6 +1106,7 @@ class ControllerTest extends AbstractTest {
 		             .uri(IMPIEGATO_URI)
 		             .accept(MediaType.APPLICATION_JSON)
 		             .contentType(MediaType.APPLICATION_JSON)
+		             .header(HttpHeaders.AUTHORIZATION, "Bearer %s".formatted(jwtToken))
 				     .body(Mono.just(impiegatoUpdateDTO), ImpiegatoUpdateDTO.class)
 				     .exchange()
 				     .expectStatus()
@@ -854,6 +1115,7 @@ class ControllerTest extends AbstractTest {
 		impiegatoReadDTO = webTestClient.get()
 				                        .uri(IMPIEGATO_URI + "/{id}", idImpiegato)
 				                        .accept(MediaType.APPLICATION_JSON)
+				                        .header(HttpHeaders.AUTHORIZATION, "Bearer %s".formatted(jwtToken))
 				                        .exchange()
 				                        .expectStatus()
 				                        .isOk()
@@ -883,10 +1145,29 @@ class ControllerTest extends AbstractTest {
 		aziendaCreateDTO.setIndirizzo(indirizzoAzienda);
 		aziendaCreateDTO.setEmail(emailAzienda);
 		
+		AuthenticationRequestDTO authenticationRequestDTO = new AuthenticationRequestDTO();
+		authenticationRequestDTO.setUsername("Gignac");
+		authenticationRequestDTO.setPassword("password");
+		
+		String jwtToken = webTestClient.post()
+                                       .uri(AUTH_URI + "/login")
+                                       .accept(MediaType.APPLICATION_JSON)
+                                       .contentType(MediaType.APPLICATION_JSON)
+                                       .body(Mono.just(authenticationRequestDTO), AuthenticationRequestDTO.class)
+                                       .exchange()
+                                       .expectStatus()
+                                       .isOk()
+                                       .expectBody(new ParameterizedTypeReference<AuthenticationResponseDTO>() {})
+                                       .returnResult()
+                                       .getResponseHeaders()
+                                       .get(HttpHeaders.AUTHORIZATION)
+                                       .get(0);
+		
 		webTestClient.post()
 		             .uri(AZIENDA_URI)
 		             .accept(MediaType.APPLICATION_JSON)
 		             .contentType(MediaType.APPLICATION_JSON)
+		             .header(HttpHeaders.AUTHORIZATION, "Bearer %s".formatted(jwtToken))
 		             .body(Mono.just(aziendaCreateDTO), AziendaCreateDTO.class)
 		             .exchange()
 		             .expectStatus()
@@ -895,6 +1176,7 @@ class ControllerTest extends AbstractTest {
 		List<AziendaReadDTO> aziende = webTestClient.get()
 	                                              .uri(AZIENDA_URI)
 	                                              .accept(MediaType.APPLICATION_JSON)
+	                                              .header(HttpHeaders.AUTHORIZATION, "Bearer %s".formatted(jwtToken))
 	                                              .exchange()
 		                                          .expectStatus()
 		                                          .isOk()
@@ -932,6 +1214,7 @@ class ControllerTest extends AbstractTest {
 		             .uri(IMPIEGATO_URI)
 		             .accept(MediaType.APPLICATION_JSON)
 		             .contentType(MediaType.APPLICATION_JSON)
+		             .header(HttpHeaders.AUTHORIZATION, "Bearer %s".formatted(jwtToken))
 		             .body(Mono.just(impiegatoCreateDTO), ImpiegatoCreateDTO.class)
 		             .exchange()
 		             .expectStatus()
@@ -940,6 +1223,7 @@ class ControllerTest extends AbstractTest {
 		List<ImpiegatoReadDTO> impiegati = webTestClient.get()
 	                                                    .uri(IMPIEGATO_URI)
 	                                                    .accept(MediaType.APPLICATION_JSON)
+	                                                    .header(HttpHeaders.AUTHORIZATION, "Bearer %s".formatted(jwtToken))
 	                                                    .exchange()
 		                                                .expectStatus()
 		                                                .isOk()
@@ -969,6 +1253,7 @@ class ControllerTest extends AbstractTest {
 		webTestClient.delete()
                      .uri(IMPIEGATO_URI + "/{id}", idImpiegato)
                      .accept(MediaType.APPLICATION_JSON)
+                     .header(HttpHeaders.AUTHORIZATION, "Bearer %s".formatted(jwtToken))
                      .exchange()
                      .expectStatus()
                      .isOk();
@@ -976,6 +1261,7 @@ class ControllerTest extends AbstractTest {
         webTestClient.get()
                      .uri(IMPIEGATO_URI + "/{id}", idImpiegato)
                      .accept(MediaType.APPLICATION_JSON)
+                     .header(HttpHeaders.AUTHORIZATION, "Bearer %s".formatted(jwtToken))
                      .exchange()
                      .expectStatus()
                      .isNotFound();
@@ -991,10 +1277,29 @@ class ControllerTest extends AbstractTest {
 		aziendaCreateDTO.setIndirizzo(indirizzoAzienda);
 		aziendaCreateDTO.setEmail(emailAzienda);
 		
+		AuthenticationRequestDTO authenticationRequestDTO = new AuthenticationRequestDTO();
+		authenticationRequestDTO.setUsername("Gignac");
+		authenticationRequestDTO.setPassword("password");
+		
+		String jwtToken = webTestClient.post()
+                                       .uri(AUTH_URI + "/login")
+                                       .accept(MediaType.APPLICATION_JSON)
+                                       .contentType(MediaType.APPLICATION_JSON)
+                                       .body(Mono.just(authenticationRequestDTO), AuthenticationRequestDTO.class)
+                                       .exchange()
+                                       .expectStatus()
+                                       .isOk()
+                                       .expectBody(new ParameterizedTypeReference<AuthenticationResponseDTO>() {})
+                                       .returnResult()
+                                       .getResponseHeaders()
+                                       .get(HttpHeaders.AUTHORIZATION)
+                                       .get(0);
+		
 		webTestClient.post()
 		             .uri(AZIENDA_URI)
 		             .accept(MediaType.APPLICATION_JSON)
 		             .contentType(MediaType.APPLICATION_JSON)
+		             .header(HttpHeaders.AUTHORIZATION, "Bearer %s".formatted(jwtToken))
 		             .body(Mono.just(aziendaCreateDTO), AziendaCreateDTO.class)
 		             .exchange()
 		             .expectStatus()
@@ -1003,6 +1308,7 @@ class ControllerTest extends AbstractTest {
 		List<AziendaReadDTO> aziende = webTestClient.get()
 	                                              .uri(AZIENDA_URI)
 	                                              .accept(MediaType.APPLICATION_JSON)
+	                                              .header(HttpHeaders.AUTHORIZATION, "Bearer %s".formatted(jwtToken))
 	                                              .exchange()
 		                                          .expectStatus()
 		                                          .isOk()
@@ -1040,6 +1346,7 @@ class ControllerTest extends AbstractTest {
 		             .uri(IMPIEGATO_URI)
 		             .accept(MediaType.APPLICATION_JSON)
 		             .contentType(MediaType.APPLICATION_JSON)
+		             .header(HttpHeaders.AUTHORIZATION, "Bearer %s".formatted(jwtToken))
 		             .body(Mono.just(impiegatoCreateDTO), ImpiegatoCreateDTO.class)
 		             .exchange()
 		             .expectStatus()
@@ -1063,6 +1370,7 @@ class ControllerTest extends AbstractTest {
 	                                                         .uri(IMPIEGATO_URI + "/cerca")
 	                                                         .accept(MediaType.APPLICATION_JSON)
 	                                                         .contentType(MediaType.APPLICATION_JSON)
+	                                                         .header(HttpHeaders.AUTHORIZATION, "Bearer %s".formatted(jwtToken))
 	                         		                         .body(Mono.just(impiegatoFiltroDTO), ImpiegatoFiltroDTO.class)
 	                                                         .exchange()
 		                                                     .expectStatus()

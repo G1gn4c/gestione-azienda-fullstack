@@ -1,5 +1,13 @@
 package com.gignac.entity;
 
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.ForeignKey;
@@ -23,8 +31,13 @@ import jakarta.persistence.UniqueConstraint;
 				name = "utente_username_unique"
 		)
 )
-public class Utente {
+public class Utente implements UserDetails {
 	
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 2208369427985563028L;
+
 	@Id
 	@SequenceGenerator(			
 			name = "utente_id_sequence",
@@ -128,6 +141,33 @@ public class Utente {
 
 	public void setRuolo(Ruolo ruolo) {
 		this.ruolo = ruolo;
+	}
+
+	@Override
+	public Collection<? extends GrantedAuthority> getAuthorities() {
+		List<GrantedAuthority> ruoli = new ArrayList<>();
+		ruoli.add(new SimpleGrantedAuthority(this.ruolo.getCodice()));
+		return ruoli;
+	}
+
+	@Override
+	public boolean isAccountNonExpired() {
+		return true;
+	}
+
+	@Override
+	public boolean isAccountNonLocked() {
+		return true;
+	}
+
+	@Override
+	public boolean isCredentialsNonExpired() {
+		return true;
+	}
+
+	@Override
+	public boolean isEnabled() {
+		return true;
 	}
 
 }
