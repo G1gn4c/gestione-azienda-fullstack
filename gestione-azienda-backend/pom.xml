@@ -77,6 +77,12 @@
 			<version>${jwt.version}</version>
 			<scope>runtime</scope>
 		</dependency>
+		
+		<!-- spring batch -->
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-batch</artifactId>
+		</dependency>
 
 		<!-- web test -->
 		<dependency>
