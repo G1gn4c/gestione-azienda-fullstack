@@ -30,6 +30,7 @@ public abstract class AbstractTest {
 		dynamicPropertyRegistry.add("spring.datasource.url", () -> postgreSQLContainer.getJdbcUrl());
 		dynamicPropertyRegistry.add("spring.datasource.username", () -> postgreSQLContainer.getUsername());
 		dynamicPropertyRegistry.add("spring.datasource.password", () -> postgreSQLContainer.getPassword());
+		dynamicPropertyRegistry.add("spring.batch.job.enabled", () -> false);
 	}
 	
 	@BeforeAll
