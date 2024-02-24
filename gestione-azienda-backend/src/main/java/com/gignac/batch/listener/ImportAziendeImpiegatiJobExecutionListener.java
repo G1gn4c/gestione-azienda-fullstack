@@ -14,13 +14,13 @@ public class ImportAziendeImpiegatiJobExecutionListener implements JobExecutionL
 
 	@Override
 	public void beforeJob(JobExecution jobExecution) {
-		LOGGER.info("!!! JOB AZIENDA STA PER PARTIRE!");
+		LOGGER.info("!!! JOB AZIENDA-IMPIEGATO STA PER PARTIRE!");
 	}
 	
 	@Override
 	public void afterJob(JobExecution jobExecution) {
 		if (jobExecution.getStatus() == BatchStatus.COMPLETED) {
-			LOGGER.info("!!! JOB AZIENDA TERMINATO! Tempo di verificare il risultato");
+			LOGGER.info("!!! JOB AZIENDA-IMPIEGATO TERMINATO! Tempo di verificare il risultato");
 		}
 	}
 }

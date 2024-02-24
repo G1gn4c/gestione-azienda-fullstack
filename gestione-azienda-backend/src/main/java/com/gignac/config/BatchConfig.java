@@ -18,7 +18,10 @@ import org.springframework.transaction.PlatformTransactionManager;
 
 import com.gignac.batch.listener.ImportAziendeImpiegatiJobExecutionListener;
 import com.gignac.batch.processor.AziendaItemProcessor;
+import com.gignac.batch.processor.ImpiegatoItemProcessor;
 import com.gignac.dto.AziendaCreateDTO;
+import com.gignac.dto.ImpiegatoCreateBatchReadDTO;
+import com.gignac.dto.ImpiegatoCreateBatchWriteDTO;
 
 @Configuration
 public class BatchConfig {
@@ -49,6 +52,31 @@ public class BatchConfig {
 	}
 	
 	@Bean
+	public FlatFileItemReader<ImpiegatoCreateBatchReadDTO> impiegatoItemReader() {
+		return new FlatFileItemReaderBuilder<ImpiegatoCreateBatchReadDTO>()
+				.name("impiegatoItemReader")
+				.resource(new ClassPathResource("batch/impiegati.csv"))
+				.delimited()
+				.names("nome", "cognome", "sesso", "dataNascita", "email", "idAzienda")
+				.targetType(ImpiegatoCreateBatchReadDTO.class)
+				.build();
+	}
+	
+	@Bean
+	public ImpiegatoItemProcessor impiegatoItemProcessor() {
+		return new ImpiegatoItemProcessor();
+	}
+	
+	@Bean
+	public JdbcBatchItemWriter<ImpiegatoCreateBatchWriteDTO> impiegatoItemWriter(DataSource dataSource) {
+		return new JdbcBatchItemWriterBuilder<ImpiegatoCreateBatchWriteDTO>()
+				.sql("INSERT INTO \"gestione-azienda\".impiegato (id, data_nascita, id_azienda, cognome, email, nome, sesso) VALUES (nextval('\"gestione-azienda\".impiegato_id_seq'), :dataNascita, :idAzienda, :cognome, :email, :nome, :sesso)")
+				.dataSource(dataSource)
+				.beanMapped()
+				.build();
+	}
+	
+	@Bean
 	public Step importAziendeStep(
 			JobRepository jobRepository, 
 			PlatformTransactionManager transactionManager,
@@ -63,16 +91,34 @@ public class BatchConfig {
 				.writer(aziendaItemWriter)
 				.build();
 	}
+	
+	@Bean
+	public Step importImpiegatiStep(
+			JobRepository jobRepository, 
+			PlatformTransactionManager transactionManager,
+			FlatFileItemReader<ImpiegatoCreateBatchReadDTO> impiegatoItemReader, 
+			ImpiegatoItemProcessor impiegatoItemProcessor,
+			JdbcBatchItemWriter<ImpiegatoCreateBatchWriteDTO> impiegatoItemWriter
+	) {
+		return new StepBuilder("importImpiegatiStep", jobRepository)
+				.<ImpiegatoCreateBatchReadDTO, ImpiegatoCreateBatchWriteDTO>chunk(3, transactionManager)
+				.reader(impiegatoItemReader)
+				.processor(impiegatoItemProcessor)
+				.writer(impiegatoItemWriter)
+				.build();
+	}
 
 	@Bean
 	public Job importAziendeImpiegatiJob(
 			JobRepository jobRepository, 
 			Step importAziendeStep,
+			Step importImpiegatiStep,
 			ImportAziendeImpiegatiJobExecutionListener importAziendeImpiegatiJobExecutionListener
 	) {
 		return new JobBuilder("importAziendeImpiegatiJob", jobRepository)
 				.listener(importAziendeImpiegatiJobExecutionListener)
 				.start(importAziendeStep)
+				.next(importImpiegatiStep)
 				.build();
 	}
 
