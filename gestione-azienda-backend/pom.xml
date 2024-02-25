@@ -19,6 +19,7 @@
 		<testcontainers.version>1.19.3</testcontainers.version>
 		<javafaker.version>1.0.2</javafaker.version>
 		<jwt.version>0.12.5</jwt.version>
+		<jasperreports.version>6.21.2</jasperreports.version>
 		<docker.username>gianlucavitto</docker.username>
 		<docker.image.tag>0.0.1-SNAPSHOT</docker.image.tag>
 	</properties>
@@ -77,11 +78,18 @@
 			<version>${jwt.version}</version>
 			<scope>runtime</scope>
 		</dependency>
-		
+
 		<!-- spring batch -->
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-batch</artifactId>
+		</dependency>
+
+		<!-- jasper -->
+		<dependency>
+			<groupId>net.sf.jasperreports</groupId>
+			<artifactId>jasperreports</artifactId>
+			<version>${jasperreports.version}</version>
 		</dependency>
 
 		<!-- web test -->
@@ -248,7 +256,8 @@
 						</platforms>
 					</from>
 					<to>
-						<image>docker.io/${docker.username}/${project.artifactId}:${docker.image.tag}</image>
+						<image>
+							docker.io/${docker.username}/${project.artifactId}:${docker.image.tag}</image>
 						<tags>
 							<tag>latest</tag>
 						</tags>
